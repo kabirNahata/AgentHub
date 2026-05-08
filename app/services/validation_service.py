@@ -1,16 +1,32 @@
-import re
 from typing import Dict
+from email_validator import validate_email, EmailNotValidError
+from geopy.geocoders import Nominatim
+from geopy.exc import GeopyError
+from fastapi import HTTPException
 
 class ValidationService:
     @staticmethod
     def validate_email(email: str) -> Dict[str, bool]:
-        # Improved regex to handle common email patterns including subdomains and plus-tagging
-        regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        is_valid = bool(re.search(regex, email))
-        return {"is_valid": is_valid}
+        try:
+            # Check that the email address is valid
+            validation = validate_email(email, check_deliverability=False)
+            return {"is_valid": True, "normalized_email": validation.normalized}
+        except EmailNotValidError as e:
+            raise HTTPException(status_code=400, detail=f"Invalid email address: {str(e)}")
 
     @staticmethod
     def validate_address(address: str) -> Dict[str, bool]:
-        # Very basic mock validation
-        is_valid = len(address.split(',')) >= 2
-        return {"is_valid": is_valid}
+        geolocator = Nominatim(user_agent="agent_ready_improvement_plan")
+        try:
+            location = geolocator.geocode(address)
+            if location:
+                return {
+                    "is_valid": True,
+                    "formatted_address": location.address,
+                    "latitude": location.latitude,
+                    "longitude": location.longitude
+                }
+            else:
+                raise HTTPException(status_code=400, detail="Address not found")
+        except GeopyError as e:
+            raise HTTPException(status_code=503, detail=f"Address validation service unavailable: {str(e)}")

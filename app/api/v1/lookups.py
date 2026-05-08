@@ -8,7 +8,7 @@ router = APIRouter()
 async def resolve_timezone(
     location: str = Query(..., description="The name of the location to resolve timezone for.")
 ):
-    result = LookupService.resolve_timezone(location)
+    result = await LookupService.resolve_timezone(location)
     return BaseResponse(status="success", data=result)
 
 @router.get("/jurisdiction", response_model=BaseResponse)

@@ -1,28 +1,44 @@
+import httpx
 from typing import Dict
+from fastapi import HTTPException
 
 class ConversionService:
-    # Mock data for v1
-    CURRENCY_RATES = {
-        "USD": {"EUR": 0.92, "GBP": 0.79, "JPY": 150.0},
-        "EUR": {"USD": 1.09, "GBP": 0.86, "JPY": 163.0},
-    }
-
     UNIT_FACTORS = {
         "meter": {"foot": 3.28084, "inch": 39.3701},
         "kilogram": {"pound": 2.20462},
     }
 
     @staticmethod
-    def convert_currency(amount: float, from_curr: str, to_curr: str) -> Dict[str, float]:
+    async def convert_currency(amount: float, from_curr: str, to_curr: str) -> Dict[str, float]:
+        from_curr = from_curr.upper()
+        to_curr = to_curr.upper()
+
         if from_curr == to_curr:
             return {"converted_amount": amount, "rate": 1.0}
 
-        rate = ConversionService.CURRENCY_RATES.get(from_curr.upper(), {}).get(to_curr.upper())
-        if rate:
-            return {"converted_amount": amount * rate, "rate": rate}
+        async with httpx.AsyncClient(follow_redirects=True) as client:
+            try:
+                response = await client.get(
+                    f"https://api.frankfurter.dev/v1/latest",
+                    params={"amount": amount, "from": from_curr, "to": to_curr}
+                )
+                if response.status_code == 404:
+                    raise HTTPException(status_code=400, detail=f"Invalid currency code: {from_curr} or {to_curr}")
+                response.raise_for_status()
+                data = response.json()
 
-        # Fallback if rate not found
-        return {"converted_amount": amount * 1.1, "rate": 1.1} # Mocked fallback
+                converted_amount = data["rates"][to_curr]
+                # Avoid division by zero if amount is 0
+                rate = converted_amount / amount if amount != 0 else 1.0
+
+                return {
+                    "converted_amount": converted_amount,
+                    "rate": rate
+                }
+            except httpx.HTTPStatusError as e:
+                raise HTTPException(status_code=response.status_code, detail=f"External API error: {str(e)}")
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=f"An error occurred during conversion: {str(e)}")
 
     @staticmethod
     def convert_unit(value: float, from_unit: str, to_unit: str) -> float:
@@ -33,4 +49,4 @@ class ConversionService:
         if factor:
             return value * factor
 
-        return value * 1.0 # Mocked fallback
+        raise HTTPException(status_code=400, detail=f"Unsupported unit conversion from {from_unit} to {to_unit}")

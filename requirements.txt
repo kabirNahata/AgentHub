@@ -5,3 +5,8 @@ pydantic-settings
 httpx
 pytest
 pytest-asyncio
+beautifulsoup4
+gunicorn
+email-validator
+geopy
+pytz

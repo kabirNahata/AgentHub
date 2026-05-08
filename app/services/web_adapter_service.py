@@ -1,26 +1,64 @@
 from typing import Dict, Any
 import httpx
+from bs4 import BeautifulSoup
 
 class WebAdapterService:
     @staticmethod
     async def fetch_structured_data(url: str) -> Dict[str, Any]:
-        # In a real implementation, this would use a library like BeautifulSoup
-        # or an LLM to parse the HTML into structured JSON.
-        # For v1, we'll return a mock structured response for a known URL
-        # and a generic one for others.
+        """
+        Fetches a website and extracts structured data using BeautifulSoup.
+        """
+        async with httpx.AsyncClient(follow_redirects=True) as client:
+            try:
+                response = await client.get(url, timeout=10.0)
+                response.raise_for_status()
+                html = response.text
+            except Exception as e:
+                return {
+                    "url": url,
+                    "status": "error",
+                    "error_message": str(e)
+                }
 
-        if "example-news.com" in url:
-            return {
-                "source": "Example News",
-                "articles": [
-                    {"title": "AI Agents Take Over the Web", "author": "J. Doe", "date": "2023-10-27"},
-                    {"title": "The End of HTML Scraping?", "author": "A. Smith", "date": "2023-10-26"}
-                ]
-            }
+        soup = BeautifulSoup(html, "html.parser")
+
+        # Extract basic metadata
+        title = soup.title.string if soup.title else ""
+        meta_description = ""
+        meta_tag = soup.find("meta", attrs={"name": "description"})
+        if meta_tag:
+            meta_description = meta_tag.get("content", "")
+
+        # Extract headers
+        headers = {
+            "h1": [h.get_text(strip=True) for h in soup.find_all("h1")],
+            "h2": [h.get_text(strip=True) for h in soup.find_all("h2")]
+        }
+
+        # Extract links (top 10 for brevity)
+        links = []
+        for a in soup.find_all("a", href=True)[:10]:
+            links.append({
+                "text": a.get_text(strip=True),
+                "href": a["href"]
+            })
+
+        # Extract main text content (first 1000 characters)
+        # Remove script and style elements
+        for script_or_style in soup(["script", "style"]):
+            script_or_style.decompose()
+
+        text = soup.get_text(separator=" ", strip=True)
+        content_summary = text[:1000] + "..." if len(text) > 1000 else text
 
         return {
             "url": url,
             "status": "extracted",
-            "content_summary": "This is a structured representation of the human-facing website at " + url,
-            "metadata": {"type": "generic_adapter"}
+            "title": title,
+            "metadata": {
+                "description": meta_description
+            },
+            "headers": headers,
+            "links": links,
+            "content_summary": content_summary
         }

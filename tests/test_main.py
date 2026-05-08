@@ -2,6 +2,8 @@ from fastapi.testclient import TestClient
 from app.main import app
 
 client = TestClient(app)
+API_KEY = "agenthub-dev-key-2024"
+HEADERS = {"X-AgentHub-Key": API_KEY}
 
 def test_read_root():
     response = client.get("/")
@@ -9,14 +11,14 @@ def test_read_root():
     assert "Welcome" in response.json()["message"]
 
 def test_currency_endpoint():
-    response = client.get("/api/v1/convert/currency?amount=100&from_currency=USD&to_currency=EUR")
+    response = client.get("/api/v1/convert/currency?amount=100&from_currency=USD&to_currency=EUR", headers=HEADERS)
     assert response.status_code == 200
     data = response.json()
     assert "converted_amount" in data["data"]
     assert data["data"]["converted_amount"] > 0
 
 def test_timezone_endpoint():
-    response = client.get("/api/v1/lookup/timezone?location=Tokyo")
+    response = client.get("/api/v1/lookup/timezone?location=Tokyo", headers=HEADERS)
     assert response.status_code == 200
     assert "timezone" in response.json()["data"]
 

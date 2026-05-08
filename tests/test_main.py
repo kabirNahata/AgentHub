@@ -29,6 +29,6 @@ def test_timezone_endpoint():
     assert response.json()["data"]["timezone"] == "Asia/Tokyo"
 
 def test_adapter_endpoint():
-    response = client.get("/api/v1/adapter/proxy?url=https://example-news.com")
+    response = client.get("/api/v1/adapter/proxy?url=https://example.com")
     assert response.status_code == 200
-    assert "articles" in response.json()["data"]
+    assert "title" in response.json()["data"]

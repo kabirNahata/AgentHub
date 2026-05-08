@@ -23,10 +23,11 @@ def test_timezone_endpoint():
     assert "timezone" in response.json()["data"]
 
 def test_adapter_endpoint():
-    response = client.get("/api/v1/adapter/proxy?url=https://example.com")
+    response = client.get("/api/v1/adapter/proxy?url=https://example.com", headers=HEADERS)
     assert response.status_code == 200
     assert "title" in response.json()["data"]
+
 def test_email_validation_endpoint():
-    response = client.get("/api/v1/validate/email?email=test@example.com")
+    response = client.get("/api/v1/validate/email?email=test@example.com", headers=HEADERS)
     assert response.status_code == 200
     assert response.json()["data"]["is_valid"] is True

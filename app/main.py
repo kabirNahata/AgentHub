@@ -1,6 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from app.api.v1 import registry, conversion, validation, lookups, adapter
 from app.core.config import settings
+from app.core.auth import verify_api_key
 
 app = FastAPI(
     title=settings.app_name,
@@ -18,12 +19,37 @@ app = FastAPI(
     version=settings.version,
 )
 
-# Include Routers
-app.include_router(registry.router, prefix="/api/v1", tags=["Registry"])
-app.include_router(conversion.router, prefix="/api/v1/convert", tags=["Utilities"])
-app.include_router(validation.router, prefix="/api/v1/validate", tags=["Utilities"])
-app.include_router(lookups.router, prefix="/api/v1/lookup", tags=["Utilities"])
-app.include_router(adapter.router, prefix="/api/v1/adapter", tags=["Web Adapter"])
+# Include Routers with global API Key Auth
+app.include_router(
+    registry.router,
+    prefix="/api/v1",
+    tags=["Registry"],
+    dependencies=[Depends(verify_api_key)]
+)
+app.include_router(
+    conversion.router,
+    prefix="/api/v1/convert",
+    tags=["Utilities"],
+    dependencies=[Depends(verify_api_key)]
+)
+app.include_router(
+    validation.router,
+    prefix="/api/v1/validate",
+    tags=["Utilities"],
+    dependencies=[Depends(verify_api_key)]
+)
+app.include_router(
+    lookups.router,
+    prefix="/api/v1/lookup",
+    tags=["Utilities"],
+    dependencies=[Depends(verify_api_key)]
+)
+app.include_router(
+    adapter.router,
+    prefix="/api/v1/adapter",
+    tags=["Web Adapter"],
+    dependencies=[Depends(verify_api_key)]
+)
 
 @app.get("/", include_in_schema=False)
 async def root():

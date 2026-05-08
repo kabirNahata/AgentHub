@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 from pydantic import BaseModel, Field
 
@@ -10,6 +11,10 @@ class AgentReadyCertification(BaseModel):
 
 class BaseResponse(BaseModel):
     status: str = Field(..., description="The status of the request (e.g., 'success', 'error').")
+    timestamp: str = Field(
+        default_factory=lambda: datetime.now(timezone.utc).isoformat(),
+        description="The ISO-formatted UTC timestamp when the response was generated."
+    )
     agent_info: AgentReadyCertification = Field(default_factory=AgentReadyCertification)
     data: Optional[Any] = Field(None, description="The structured data returned by the service.")
     error: Optional[Dict[str, Any]] = Field(None, description="Detailed error information for machine consumption.")

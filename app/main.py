@@ -29,6 +29,14 @@ app.include_router(adapter.router, prefix="/api/v1/adapter", tags=["Web Adapter"
 async def root():
     return {"message": "Welcome to AgentHub. Refer to /docs or /api/v1/registry for agent-readable schemas."}
 
+@app.get("/health", tags=["Health"])
+async def health_check():
+    return {
+        "status": "alive",
+        "version": settings.version,
+        "app_name": settings.app_name
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

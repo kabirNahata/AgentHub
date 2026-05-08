@@ -86,7 +86,7 @@ async def health_check():
             try:
                 resp = await client.get(url)
                 service_status[name] = "up" if resp.status_code == 200 else "down"
-            except Exception:
+            except httpx.HTTPError:
                 service_status[name] = "unreachable"
 
     return {

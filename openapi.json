@@ -1,0 +1,424 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AgentHub",
+    "version": "0.1"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Root",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/convert/currency": {
+      "get": {
+        "summary": "Convert Currency",
+        "operationId": "convert_currency_convert_currency_get",
+        "parameters": [
+          {
+            "name": "amount",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "description": "Amount to convert",
+              "title": "Amount"
+            },
+            "description": "Amount to convert"
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Source currency code (e.g. USD)",
+              "title": "From"
+            },
+            "description": "Source currency code (e.g. USD)"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Target currency code (e.g. EUR)",
+              "title": "To"
+            },
+            "description": "Target currency code (e.g. EUR)"
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CurrencyResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/validate/email": {
+      "get": {
+        "summary": "Validate Email",
+        "operationId": "validate_email_validate_email_get",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Email address to validate",
+              "title": "Email"
+            },
+            "description": "Email address to validate"
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmailResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/resolve/timezone": {
+      "get": {
+        "summary": "Resolve Timezone",
+        "operationId": "resolve_timezone_resolve_timezone_get",
+        "parameters": [
+          {
+            "name": "city",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "City name or coordinates",
+              "title": "City"
+            },
+            "description": "City name or coordinates"
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimezoneResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/convert/unit": {
+      "get": {
+        "summary": "Convert Unit",
+        "operationId": "convert_unit_convert_unit_get",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "description": "Value to convert",
+              "title": "Value"
+            },
+            "description": "Value to convert"
+          },
+          {
+            "name": "from_unit",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Source unit (e.g. meter)",
+              "title": "From Unit"
+            },
+            "description": "Source unit (e.g. meter)"
+          },
+          {
+            "name": "to_unit",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "Target unit (e.g. feet)",
+              "title": "To Unit"
+            },
+            "description": "Target unit (e.g. feet)"
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "X-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnitResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CurrencyResponse": {
+        "properties": {
+          "rate": {
+            "type": "number",
+            "title": "Rate"
+          },
+          "converted_amount": {
+            "type": "number",
+            "title": "Converted Amount"
+          },
+          "timestamp": {
+            "type": "integer",
+            "title": "Timestamp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rate",
+          "converted_amount",
+          "timestamp"
+        ],
+        "title": "CurrencyResponse"
+      },
+      "EmailResponse": {
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "title": "Valid"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "valid",
+          "reason"
+        ],
+        "title": "EmailResponse"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "TimezoneResponse": {
+        "properties": {
+          "timezone_name": {
+            "type": "string",
+            "title": "Timezone Name"
+          },
+          "utc_offset": {
+            "type": "string",
+            "title": "Utc Offset"
+          },
+          "local_time": {
+            "type": "string",
+            "title": "Local Time"
+          }
+        },
+        "type": "object",
+        "required": [
+          "timezone_name",
+          "utc_offset",
+          "local_time"
+        ],
+        "title": "TimezoneResponse"
+      },
+      "UnitResponse": {
+        "properties": {
+          "converted_value": {
+            "type": "number",
+            "title": "Converted Value"
+          },
+          "unit_label": {
+            "type": "string",
+            "title": "Unit Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "converted_value",
+          "unit_label"
+        ],
+        "title": "UnitResponse"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

@@ -5,6 +5,7 @@ pydantic-settings
 httpx
 pytest
 pytest-asyncio
+pytest-mock
 beautifulsoup4
 gunicorn
 email-validator

@@ -16,7 +16,7 @@ class ValidationService:
 
     @staticmethod
     def validate_address(address: str) -> Dict[str, bool]:
-        geolocator = Nominatim(user_agent="agent_ready_improvement_plan")
+        geolocator = Nominatim(user_agent="AgentHub/0.1 (contact@agenthub.dev)")
         try:
             location = geolocator.geocode(address)
             if location:

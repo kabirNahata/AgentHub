@@ -10,7 +10,7 @@ async def convert_currency(
     from_currency: str = Query(..., description="3-letter ISO code of the source currency."),
     to_currency: str = Query(..., description="3-letter ISO code of the target currency.")
 ):
-    result = ConversionService.convert_currency(amount, from_currency, to_currency)
+    result = await ConversionService.convert_currency(amount, from_currency, to_currency)
     return BaseResponse(status="success", data=result)
 
 @router.get("/unit", response_model=BaseResponse)

@@ -5,3 +5,6 @@ pydantic-settings
 httpx
 pytest
 pytest-asyncio
+email-validator
+geopy
+pytz

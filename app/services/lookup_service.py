@@ -5,20 +5,32 @@ from fastapi import HTTPException
 import httpx
 
 class LookupService:
-    # Mock data for facts and jurisdictions (keeping as they are for now unless requested otherwise)
+    # Expanded mock data for facts and jurisdictions
     JURISDICTIONS = {
         "California": {"country": "USA", "type": "State"},
-        "London": {"country": "UK", "type": "City"}
+        "London": {"country": "UK", "type": "City"},
+        "Tokyo": {"country": "Japan", "type": "City"},
+        "Paris": {"country": "France", "type": "City"},
+        "New York": {"country": "USA", "type": "City"},
+        "Texas": {"country": "USA", "type": "State"},
+        "Berlin": {"country": "Germany", "type": "City"},
+        "Sydney": {"country": "Australia", "type": "City"}
     }
 
     FACTS = {
         "capital of france": "Paris",
-        "speed of light": "299,792,458 meters per second"
+        "speed of light": "299,792,458 meters per second",
+        "largest planet": "Jupiter",
+        "boiling point of water": "100 degrees Celsius",
+        "first man on the moon": "Neil Armstrong",
+        "capital of japan": "Tokyo",
+        "square root of 144": "12",
+        "mount everest height": "8,848 meters"
     }
 
     @staticmethod
     async def resolve_timezone(location: str) -> Dict[str, str]:
-        geolocator = Nominatim(user_agent="agent_ready_improvement_plan")
+        geolocator = Nominatim(user_agent="AgentHub/0.1 (contact@agenthub.dev)")
         try:
             loc = geolocator.geocode(location)
             if not loc:

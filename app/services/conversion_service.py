@@ -17,28 +17,41 @@ class ConversionService:
             return {"converted_amount": amount, "rate": 1.0}
 
         async with httpx.AsyncClient(follow_redirects=True) as client:
+            # Primary: Frankfurter
             try:
                 response = await client.get(
-                    f"https://api.frankfurter.dev/v1/latest",
+                    "https://api.frankfurter.app/latest",
                     params={"amount": amount, "from": from_curr, "to": to_curr}
                 )
+                if response.status_code == 200:
+                    data = response.json()
+                    converted_amount = data["rates"][to_curr]
+                    rate = converted_amount / amount if amount != 0 else 1.0
+                    return {"converted_amount": converted_amount, "rate": rate}
+            except Exception:
+                pass
+
+            # Secondary: exchangerate-api.com (Free tier for exotic currencies like NPR)
+            try:
+                # Note: Free tier uses a slightly different endpoint and base currency approach
+                response = await client.get(f"https://api.exchangerate-api.com/v4/latest/{from_curr}")
+                if response.status_code == 200:
+                    data = response.json()
+                    if to_curr in data.get("rates", {}):
+                        rate = data["rates"][to_curr]
+                        converted_amount = amount * rate
+                        return {"converted_amount": converted_amount, "rate": rate}
+
                 if response.status_code == 404:
-                    raise HTTPException(status_code=400, detail=f"Invalid currency code: {from_curr} or {to_curr}")
+                     raise HTTPException(status_code=400, detail=f"Invalid currency code: {from_curr} or {to_curr}")
+
                 response.raise_for_status()
-                data = response.json()
-
-                converted_amount = data["rates"][to_curr]
-                # Avoid division by zero if amount is 0
-                rate = converted_amount / amount if amount != 0 else 1.0
-
-                return {
-                    "converted_amount": converted_amount,
-                    "rate": rate
-                }
-            except httpx.HTTPStatusError as e:
-                raise HTTPException(status_code=response.status_code, detail=f"External API error: {str(e)}")
+            except HTTPException:
+                raise
             except Exception as e:
                 raise HTTPException(status_code=500, detail=f"An error occurred during conversion: {str(e)}")
+
+        raise HTTPException(status_code=400, detail=f"Unsupported currency conversion: {from_curr} to {to_curr}")
 
     @staticmethod
     def convert_unit(value: float, from_unit: str, to_unit: str) -> float:

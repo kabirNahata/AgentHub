@@ -4,28 +4,38 @@ from fastapi.testclient import TestClient
 
 client = TestClient(app)
 
-def test_health_endpoint():
+def test_health_endpoint(mocker):
+    # Mock external calls in health check
+    mock_response = mocker.Mock()
+    mock_response.status_code = 200
+    mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
+
     response = client.get("/health")
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "alive"
     assert "version" in data
     assert "app_name" in data
+    assert "external_dependencies" in data
 
-@pytest.mark.asyncio
-async def test_web_adapter_real_structure():
+async def test_web_adapter_real_structure(mocker):
     from app.services.web_adapter_service import WebAdapterService
-    # Use a reliable URL for testing, or mock it.
-    # Since I've updated the service to be "real", it will try to fetch.
-    # For testing purposes without external network dependecy in all environments,
-    # we might want to mock httpx, but let's see if we can test the structure.
 
     url = "https://example.com"
+
+    mock_response = mocker.Mock()
+    mock_response.status_code = 200
+    mock_response.url = url
+    mock_response.headers = {"Content-Type": "text/html"}
+    mock_response.text = "<html><head><title>Example</title></head><body><h1>Hello</h1><a href='/test'>Link</a></body></html>"
+    mock_response.is_redirect = False
+
+    mocker.patch("httpx.AsyncClient.get", return_value=mock_response)
+
     res = await WebAdapterService.fetch_structured_data(url)
 
     assert res["url"] == url
-    assert "status" in res
-    assert "title" in res
-    assert "headers" in res
+    assert res["status"] == "extracted"
+    assert res["title"] == "Example"
     assert "links" in res
-    assert "content_summary" in res
+    assert len(res["links"]) > 0
